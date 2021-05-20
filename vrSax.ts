@@ -108,7 +108,6 @@ export class VrSax {
     refreshkeys() {
         let keystr = Object.keys(this.keys).sort((a, b) => a.localeCompare(b)).join("");
         this.currentNote = this.noteMap[keystr] ?? null;
-        document.getElementById('keys').innerHTML = this.currentNote + " => " + keystr;
         if (this.mode == 0) {
             if (this.currentNote == null) {
                 this.stop();
