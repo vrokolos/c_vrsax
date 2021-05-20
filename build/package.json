@@ -1,9 +1,14 @@
 {
-  "dependencies": {
-    "tone": "^14.7.77",
-    "ts-debounce": "^3.0.0"
-  },
-  "devDependencies": {
-    "snowpack": "^3.4.0"
-  }
+    "dependencies": {
+        "tone": "^14.7.77",
+        "ts-debounce": "^3.0.0"
+    },
+    "devDependencies": {
+        "concurrently": "^6.1.0",
+        "snowpack": "^3.4.0"
+    },
+    "scripts": {
+        "start": "concurrently \"tsc --watch\" \"snowpack dev\"",
+        "publish": "snowpack build"
+    }
 }

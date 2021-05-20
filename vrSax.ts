@@ -7,56 +7,81 @@ export class VrSax {
     prevNote = null;
     prevVal = 0;
     reset = true;
+    interval = null;
+    mode = 0;
+
+    setMode(mode: number) {
+        this.stop();
+        this.mode = mode;
+        this.reset = true;
+        if (mode == 1) {
+            this.interval = setInterval(() => this.checkVol(), 10);
+            this.debouncedRefresh = debounce(this.refreshkeys, 1);
+        } else {
+            clearInterval(this.interval);
+            this.debouncedRefresh = debounce(this.refreshkeys, 100);
+        }
+    }
+
     noteMap = {
-        ",benrvw": "c4",
-        ",6benrvw": "c#4",
-        "benrvw": "d4",
-        "bemnrvw": "d#4",
-        "bervw": "e4",
-        "ervw": "f4",
-        "berw": "f#4",
-        "erw": "g4",
-        "ertw": "g#4",
-        "ew": "a4",
-        " ew": "a#4",
-        "w": "b4",
-        "e": "c5",
-        "": "c#5",
-        "!benrvw": "d5",
-        "!bemnrvw": "d#5",
-        "!bervw": "e5",
-        "!ervw": "f5",
-        "!berw": "f#5",
-        "!erw": "g5",
+        ",benrvw": "c3",
+        ",6benrvw": "c#3",
+        "benrvw": "d3",
+        "bemnrvw": "d#3",
+        "bervw": "e3",
+        "ervw": "f3",
+        "berw": "f#3",
+        "erw": "g3",
+        "ertw": "g#3",
+        "ew": "a3",
+        " ew": "a#3",
+        "w": "b3",
+        "e": "c4",
+        "": "c#4",
+        "!benrvw": "d4",
+        "!bemnrvw": "d#4",
+        "!bervw": "e4",
+        "!ervw": "f4",
+        "!berw": "f#4",
+        "!erw": "g4",
         "!ertw": "g#4",
-        "!ew": "a5",
-        " !ew": "a#5",
-        "!w": "b5",
-        "!e": "c6",
-        "!": "c#6",
+        "!ew": "a4",
+        " !ew": "a#4",
+        "!w": "b4",
+        "!e": "c5",
+        "!": "c#5",
     }
     sampler = new Tone.Sampler({
-        urls: { "C5": "C4.wav" },
+        urls: { "C4": "C4.wav" },
         baseUrl: "./",
     }).toDestination();
+
+    constructor() {
+        window.onkeydown = (e) => vrsax.keyDown(e.key);
+        window.onkeyup = (e) => vrsax.keyUp(e.key);
+        this.init();
+    }
 
     async init() {
         await Tone.start();
         await Tone.loaded();
         await this.mic.open();
         await this.mic.connect(this.meter);
-        setInterval(() => this.checkVol(), 10);
     }
 
-
     play() {
-        this.synth.triggerAttack(this.currentNote, Tone.now());
+        if (this.mode == 0) {
+            this.sampler.triggerAttack(this.currentNote, Tone.now());
+        } else {
+            this.synth.triggerAttack(this.currentNote, Tone.now());
+        }
         this.prevNote = this.currentNote;
         document.getElementById('pressed').innerHTML = this.currentNote;
     }
 
     stop() {
         this.synth.triggerRelease(Tone.now());
+        this.sampler.triggerRelease(Tone.now());
         document.getElementById('pressed').innerHTML = "off";
     }
 
@@ -80,9 +105,16 @@ export class VrSax {
         let keystr = Object.keys(this.keys).sort((a, b) => a.localeCompare(b)).join("");
         this.currentNote = this.noteMap[keystr] ?? null;
         document.getElementById('keys').innerHTML = this.currentNote + " => " + keystr;
+        if (this.mode == 0) {
+            if (this.currentNote == null) {
+                this.stop();
+            } else {
+                this.play();
+            }
+        }
     }
 
-    debouncedRefresh = debounce(this.refreshkeys, 1);
+    debouncedRefresh = debounce(this.refreshkeys, 100);
 
     keyDown(key: string) {
         if (this.lastKey != key) {
@@ -100,10 +132,13 @@ export class VrSax {
 }
 
 var vrsax = new VrSax();
-
-window.onkeydown = (e) => vrsax.keyDown(e.key);
-window.onkeyup = (e) => vrsax.keyUp(e.key);
-window["vrsax"] = vrsax;
-document.getElementById('start').onclick = () => vrsax.init();
-vrsax.init();
-
+let btn = document.getElementById('mode');
+btn.onclick = () => {
+    if (vrsax.mode == 0) {
+        vrsax.setMode(1);
+        btn.innerHTML = "Mic";
+    } else {
+        vrsax.setMode(0);
+        btn.innerHTML = "Always";
+    }
+}
