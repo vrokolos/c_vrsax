@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "tone": "^14.7.77",
+    "ts-debounce": "^3.0.0"
+  },
+  "devDependencies": {
+    "snowpack": "^3.4.0"
+  }
+}

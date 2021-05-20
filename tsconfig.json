@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "lib": ["ES2015", "DOM"],
+        "moduleResolution": "Node",
+        "module": "ES6",
+        "target": "ES2017"
+    }
+
+}
