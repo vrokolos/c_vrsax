@@ -43,18 +43,23 @@ export class VrSax {
             baseUrl: "./",
         }).toDestination();
         this.meter = new Tone.Meter();
-        this.mic = new Tone.UserMedia();
+        this.mic = null;
         this.synth = new Tone.Synth().toDestination();
         this.debouncedRefresh = debounce(this.refreshkeys, 100);
         window.onkeydown = (e) => vrsax.keyDown(e.key);
         window.onkeyup = (e) => vrsax.keyUp(e.key);
         this.init();
     }
-    setMode(mode) {
+    async setMode(mode) {
         this.stop();
         this.mode = mode;
         this.reset = true;
         if (mode == 1) {
+            if (this.mic == null) {
+                this.mic = new Tone.UserMedia();
+                await this.mic.open();
+                await this.mic.connect(this.meter);
+            }
             this.interval = setInterval(() => this.checkVol(), 10);
             this.debouncedRefresh = debounce(this.refreshkeys, 1);
         }
@@ -66,8 +71,6 @@ export class VrSax {
     async init() {
         await Tone.start();
         await Tone.loaded();
-        await this.mic.open();
-        await this.mic.connect(this.meter);
     }
     play() {
         if (this.mode == 0) {

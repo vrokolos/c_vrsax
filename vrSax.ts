@@ -10,11 +10,17 @@ export class VrSax {
     interval = null;
     mode = 0;
 
-    setMode(mode: number) {
+    async setMode(mode: number) {
         this.stop();
         this.mode = mode;
         this.reset = true;
         if (mode == 1) {
+            if (this.mic == null) {
+                this.mic =  new Tone.UserMedia();
+                await this.mic.open();
+                await this.mic.connect(this.meter);
+            }
+
             this.interval = setInterval(() => this.checkVol(), 10);
             this.debouncedRefresh = debounce(this.refreshkeys, 1);
         } else {
@@ -65,8 +71,6 @@ export class VrSax {
     async init() {
         await Tone.start();
         await Tone.loaded();
-        await this.mic.open();
-        await this.mic.connect(this.meter);
     }
 
     play() {
@@ -99,7 +103,7 @@ export class VrSax {
     }
 
     meter = new Tone.Meter();
-    mic = new Tone.UserMedia();
+    mic = null;
     synth = new Tone.Synth().toDestination();
     refreshkeys() {
         let keystr = Object.keys(this.keys).sort((a, b) => a.localeCompare(b)).join("");
