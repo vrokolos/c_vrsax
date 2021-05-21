@@ -11,6 +11,8 @@ export class VrSax {
         this.interval = null;
         this.mode = 0;
         this.noteMap = {
+            ",behnrvw": "b2",
+            ",benruvw": "a#2",
             ",benrvw": "c3",
             ",6benrvw": "c#3",
             "benrvw": "d3",
