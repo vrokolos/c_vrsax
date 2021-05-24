@@ -2,6 +2,7 @@ import * as Tone from 'tone';
 import { debounce } from 'ts-debounce';
 export class VrSax {
     constructor() {
+        this.metronome = new Metronome();
         this.lastKey = null;
         this.keys = {};
         this.currentNote = null;
@@ -24,6 +25,7 @@ export class VrSax {
             "ertw": "g#3",
             "ew": "a3",
             " ew": "a#3",
+            "vw": "a#3",
             "w": "b3",
             "e": "c4",
             "": "c#4",
@@ -36,6 +38,7 @@ export class VrSax {
             "!ertw": "g#4",
             "!ew": "a4",
             " !ew": "a#4",
+            "!vw": "a#4",
             "!w": "b4",
             "!e": "c5",
             "!": "c#5",
@@ -128,15 +131,32 @@ export class VrSax {
         this.debouncedRefresh();
     }
 }
+export class Metronome {
+    constructor() {
+        this.player = new Tone.Player("./metronome.wav");
+    }
+    start() {
+        var bpm = parseInt(document.getElementById('bpm').value);
+        Tone.Transport.bpm.value = bpm;
+        Tone.Transport.scheduleRepeat((time) => { console.log(time); console.log(this.player); this.player.start(time); }, "4n");
+        Tone.Transport.start();
+    }
+    stop() {
+        Tone.Transport.stop();
+    }
+}
 var vrsax = new VrSax();
-let btn = document.getElementById('mode');
-btn.onclick = () => {
+//let btn = document.getElementById('mode');
+let btnMetroStart = document.getElementById('metroStart');
+let btnMetroStop = document.getElementById('metroStop');
+btnMetroStart.onclick = vrsax.metronome.start;
+btnMetroStop.onclick = vrsax.metronome.stop;
+/*btn.onclick = () => {
     if (vrsax.mode == 0) {
         vrsax.setMode(1);
         btn.innerHTML = "Mic";
-    }
-    else {
+    } else {
         vrsax.setMode(0);
         btn.innerHTML = "Always";
     }
-};
+}*/ 
